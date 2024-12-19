@@ -1,0 +1,7 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Tines Support
+    url: https://www.tines.com/api/
+    about: |
+      Please only file issues here that are specifically related to the Tines Go SDK, whether bug reports or feature requests.
+      If you're having general trouble using the Tines API, please contact our Support team from the Help Center. 
