@@ -3,11 +3,16 @@ package tines
 import (
 	"encoding/json"
 	"strings"
+	"time"
 )
 
 type ListFilter struct {
-	TeamId      int    `json:"team_id,omitempty"`
+	TeamID      int    `json:"team_id,omitempty"`
 	ContentType string `json:"content_type,omitempty"`
+	Before      string `json:"before,omitempty"`
+	After       string `json:"after,omitempty"`
+	UserID      int    `json:"user_id,omitempty"`
+	OpName      string `json:"operation_name,omitempty"`
 	PerPage     int    `json:"per_page,omitempty"`
 	Page        int    `json:"page,omitempty"`
 	maxResults  int
@@ -34,7 +39,16 @@ func NewListFilter(opts ...func(*ListFilter)) ListFilter {
 func WithTeamId(id int) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		if id > 0 {
-			lf.TeamId = id
+			lf.TeamID = id
+		}
+	}
+}
+
+// Limit results returned by a List endpoint to only the results that belong to a particular User ID.
+func WithUserId(id int) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		if id > 0 {
+			lf.UserID = id
 		}
 	}
 }
@@ -44,6 +58,35 @@ func WithTeamId(id int) func(*ListFilter) {
 func WithContentType(ct string) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		lf.ContentType = strings.ToUpper(ct)
+	}
+}
+
+// Limit results returned by the List Audit Logs endpoint to only audit logs for a specific action or operation.
+// The current list of logged operations is available at https://www.tines.com/api/audit-logs/. Logged operation
+// names are case-sensitive.
+func WithOperationName(op string) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		lf.OpName = op
+	}
+}
+
+// Limit results to those created before the specified ISO 8601 timestamp.
+func WithResultsBefore(s string) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		ts, err := time.Parse(time.RFC3339, s)
+		if err != nil {
+			lf.Before = ts.String()
+		}
+	}
+}
+
+// Limit results to those created after the specified ISO 8601 timestamp.
+func WithResultsAfter(s string) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		ts, err := time.Parse(time.RFC3339, s)
+		if err != nil {
+			lf.After = ts.String()
+		}
 	}
 }
 
