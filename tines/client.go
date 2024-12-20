@@ -124,24 +124,45 @@ func (c *Client) doRequest(ctx context.Context, method, path string, params map[
 	}
 
 	for k, v := range params {
-		c.logger.Debug("params", zap.Any(k, v))
+		c.logger.Debug("found param", zap.Any(k, v))
 	}
 
 	q := tenant.Query()
 	for k, v := range params {
 		switch reflect.TypeOf(v) {
 		case reflect.TypeFor[int]():
-			v = strconv.Itoa(v.(int))
+			i, ok := v.(int)
+			if ok {
+				v = strconv.Itoa(i)
+			} else {
+				c.logger.Debug("unable to convert int value to string, skipping", zap.Any(k, v))
+			}
 		case reflect.TypeFor[float64]():
-			v = strconv.FormatFloat(v.(float64), 'f', 0, 64)
+			f, ok := v.(float64)
+			if ok {
+				v = strconv.FormatFloat(f, 'f', 0, 64)
+			} else {
+				c.logger.Debug("unable to convert float64 value to string, skipping", zap.Any(k, v))
+			}
 		case reflect.TypeFor[bool]():
-			v = strconv.FormatBool(v.(bool))
+			b, ok := v.(bool)
+			if ok {
+				v = strconv.FormatBool(b)
+			} else {
+				c.logger.Debug("unable to convert bool value to string, skipping", zap.Any(k, v))
+			}
 		}
-		c.logger.Debug(fmt.Sprintf("Setting %s as %s", k, v))
-		q.Add(k, v.(string))
+
+		s, ok := v.(string)
+		if ok {
+			c.logger.Debug(fmt.Sprintf("setting query param %s to value %s", k, v))
+			q.Add(k, s)
+		} else {
+			c.logger.Debug("invalid string value, skipping", zap.Any(k, v))
+		}
 	}
 
-	c.logger.Debug(fmt.Sprintf("query string: %s", q.Encode()))
+	c.logger.Debug(fmt.Sprintf("final query string: %s", q.Encode()))
 
 	fullUrl := tenant.JoinPath(path)
 	fullUrl.RawQuery = q.Encode()

@@ -8,5 +8,9 @@ on:
 jobs:
     check:
         name: Require Label
-        runs-on: ubuntu-latest
-        if: join(github.event.pull_request.labels) == ''
+        uses: actions/github-script@v7
+        with:
+            script: |
+                if (join(github.event.pull_request.labels) === '' {
+                    core.setFailed('at least one label is required')
+                }

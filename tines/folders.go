@@ -127,7 +127,7 @@ func (c *Client) UpdateFolder(ctx context.Context, id int, name string) (*Folder
 
 	err = json.Unmarshal(body, &f)
 	if err != nil {
-		return &f, nil
+		return &f, err
 	}
 	return &f, nil
 }

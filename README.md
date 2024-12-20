@@ -66,6 +66,20 @@ Naming conventions for this package follow a {Verb}{Object(s)} pattern mirroring
 in the [API Documentation](https://www.tines.com/api/). For example, retrieving an individual Story is `GetStory()`,
 updating an individual Folder is `UpdateFolder()`, etc. 
 
+The Tines SDK supports [Uber's zap logging library](https://github.com/uber-go/zap/). To enable logging, 
+pass in a configured logger when creating a new client.
+
+```go
+logger := zap.Must(zap.NewProduction())
+defer logger.Sync()
+
+cli, err := tines.NewClient(
+    tines.SetTenantUrl(os.Getenv("TINES_TENANT_URL")),
+    tines.SetApiKey(os.Getenv("TINES_API_KEY")),
+    tines.SetLogger(logger)
+)
+```
+
 ## Contributing
 
 Pull Requests are welcome, but please open an issue (or comment in an existing issue) to discuss any non-trivial 
