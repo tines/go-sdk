@@ -13,4 +13,4 @@ jobs:
             - uses: actions/github-script@v7
               with:
                   script: |
-                    console.log(context.pull_request.labels.length + "labels applied")
+                    console.log(context.payload.pull_request.labels.length + "labels applied")
