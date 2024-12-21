@@ -13,5 +13,4 @@ jobs:
             - uses: actions/github-script@v7
               with:
                   script: |
-                    const labels = github.event.pull_request.title
-                    console.log(labels)
+                    console.log(JSON.stringify(github.event))
