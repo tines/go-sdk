@@ -30,8 +30,8 @@ jobs:
             - env:
                 COVERAGE_THRESHOLD: 30
               run: |
-                    coverage=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
-                    if ($coverage > $COVERAGE_THRESHOLD); then
+                    coverage=$(go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+')
+                    if (( $(echo "$coverage > $COVERAGE_THRESHOLD" | bc -l) )); then
                         echo "Test coverage exceeds minimum threshold"
                     else
                         echo "Test coverage is below minimum threshold"

@@ -9,7 +9,7 @@ import (
 	"github.com/tines/go-sdk/tines"
 )
 
-// API response value as of 2025-01-14
+// API response value as of 2025-01-14.
 const testAuditLogsResp = `
 {
     "audit_logs": [
