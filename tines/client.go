@@ -59,11 +59,19 @@ func NewClient(opts ...func(*Client)) (*Client, error) {
 			Details: errEmptyApiKey,
 		})
 	}
+
+	// If no custom UserAgent has been set during client initialization,
+	// apply the default one.
+	if c.userAgent == "" {
+		ua := SetUserAgent("")
+		ua(&c)
+	}
+
 	// We do additional error checking when crafting the HTTP request to
 	// ensure it goes to a valid URL, but we should at least make sure
 	// the identified tenant URL starts with a valid protocol since that
 	// aspect is not checked by the url.Parse() function.
-	ok, err := regexp.Match("^https:\\/\\/", []byte(c.tenantUrl))
+	ok, err := regexp.Match("^https?:\\/\\/", []byte(c.tenantUrl))
 	if err != nil {
 		errs.Errors = append(errs.Errors, ErrorMessage{
 			Message: errParseError,
@@ -81,7 +89,7 @@ func NewClient(opts ...func(*Client)) (*Client, error) {
 	if errs.HasErrors() {
 		return nil, errs
 	}
-
+	c.logger.Debug("Tines client", zap.String("version", utils.SetClientVersion()))
 	return &c, nil
 }
 
@@ -99,7 +107,7 @@ func SetApiKey(s string) func(*Client) {
 
 func SetUserAgent(s string) func(*Client) {
 	return func(c *Client) {
-		c.userAgent = s
+		c.userAgent = utils.SetUserAgent(s)
 	}
 }
 

@@ -26,7 +26,9 @@ type ListFilter struct {
 //	  filter.WithTeamId(1),
 //	)
 func NewListFilter(opts ...func(*ListFilter)) ListFilter {
-	lf := ListFilter{}
+	lf := ListFilter{
+		maxResults: 100,
+	}
 
 	for _, o := range opts {
 		o(&lf)
@@ -75,7 +77,16 @@ func WithResultsBefore(s string) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		ts, err := time.Parse(time.RFC3339, s)
 		if err != nil {
-			lf.Before = ts.String()
+			// Optionally fall back to a partially-compliant timestamp.
+			ts2, err := time.Parse("2006-01-02", s)
+			if err != nil {
+				// If we still can't parse a value, default to current time.
+				lf.Before = time.Now().Format(time.RFC3339)
+			} else {
+				lf.Before = ts2.Format(time.RFC3339)
+			}
+		} else {
+			lf.Before = ts.Format(time.RFC3339)
 		}
 	}
 }
@@ -85,7 +96,16 @@ func WithResultsAfter(s string) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		ts, err := time.Parse(time.RFC3339, s)
 		if err != nil {
-			lf.After = ts.String()
+			// Optionally fall back to a partially-compliant timestamp.
+			ts2, err := time.Parse("2006-01-02", s)
+			if err != nil {
+				// If we still can't parse a value, default to current time.
+				lf.After = time.Now().Format(time.RFC3339)
+			} else {
+				lf.After = ts2.Format(time.RFC3339)
+			}
+		} else {
+			lf.After = ts.Format(time.RFC3339)
 		}
 	}
 }
@@ -96,6 +116,8 @@ func WithResultsPerPage(i int) func(*ListFilter) {
 		switch {
 		case i > 500:
 			lf.PerPage = 500
+		case i < 20:
+			lf.PerPage = 20
 		default:
 			lf.PerPage = i
 		}

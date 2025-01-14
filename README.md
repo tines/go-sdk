@@ -62,15 +62,16 @@ func main() {
 
 ```
 
-Naming conventions for this package follow a {Verb}{Object(s)} pattern mirroring the actions and objects outlined
-in the [API Documentation](https://www.tines.com/api/). For example, retrieving an individual Story is `GetStory()`,
-updating an individual Folder is `UpdateFolder()`, etc. 
+Naming conventions for this package follow a `{Verb}{Object(s)}` pattern mirroring the actions and objects outlined
+in the [API Documentation](https://www.tines.com/api/). For example, retrieving an individual Folder is `GetFolder()`,
+updating an individual Folder is `UpdateFolder()`, listing all Folders is `ListFolders()`, etc. 
 
-The Tines SDK supports [Uber's zap logging library](https://github.com/uber-go/zap/). To enable logging, 
-pass in a configured logger when creating a new client.
+The Tines SDK supports [Uber's zap logging library](https://github.com/uber-go/zap/) for debugging purposes. To enable logging, 
+pass in a configured logger when creating a new client. The Tines SDK only logs at a debug level - any errors will be passed
+back to your application and should be handled according to your normal error-handling logic.
 
 ```go
-logger := zap.Must(zap.NewProduction())
+logger := zap.Must(zap.NewDevelopment())
 defer logger.Sync()
 
 cli, err := tines.NewClient(

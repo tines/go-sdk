@@ -30,7 +30,7 @@ type AuditLogList struct {
 	Meta      paginate.Meta `json:"meta"`
 }
 
-func (c *Client) ListAuditLogs(ctx context.Context, f *ListFilter) iter.Seq2[AuditLog, error] {
+func (c *Client) ListAuditLogs(ctx context.Context, f ListFilter) iter.Seq2[AuditLog, error] {
 	var auditlogList, resultList AuditLogList
 	resource := "/api/v1/audit_logs"
 	params := f.ToParamMap()

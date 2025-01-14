@@ -3,7 +3,7 @@ default: lint
 # Run unit tests
 .PHONY: tests
 tests:
-	go test ./... -v $(TESTARGS) -timeout 120m
+	go test ./... -v $(TESTARGS) -cover -timeout 120m
 
 # Run linter
 .PHONY: lint

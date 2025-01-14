@@ -9,7 +9,9 @@ func SetClientVersion() string {
 	version := "development"
 	build, ok := debug.ReadBuildInfo()
 	if ok {
-		version = build.Main.Version
+		if build.Main.Version != "" {
+			version = build.Main.Version
+		}
 	}
 	return version
 }
