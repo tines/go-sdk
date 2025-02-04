@@ -146,7 +146,7 @@ func (c *Client) UpdateFolder(ctx context.Context, id int, name string) (*Folder
 //		}
 //		fmt.Println(f.Name)
 //	}
-func (c *Client) ListFolders(ctx context.Context, f *ListFilter) iter.Seq2[Folder, error] {
+func (c *Client) ListFolders(ctx context.Context, f ListFilter) iter.Seq2[Folder, error] {
 	var folderList, resultList FolderList
 	resource := "/api/v1/folders"
 	params := f.ToParamMap()

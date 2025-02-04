@@ -59,11 +59,19 @@ func NewClient(opts ...func(*Client)) (*Client, error) {
 			Details: errEmptyApiKey,
 		})
 	}
+
+	// If no custom UserAgent has been set during client initialization,
+	// apply the default one.
+	if c.userAgent == "" {
+		ua := SetUserAgent("")
+		ua(&c)
+	}
+
 	// We do additional error checking when crafting the HTTP request to
 	// ensure it goes to a valid URL, but we should at least make sure
 	// the identified tenant URL starts with a valid protocol since that
 	// aspect is not checked by the url.Parse() function.
-	ok, err := regexp.Match("^https:\\/\\/", []byte(c.tenantUrl))
+	ok, err := regexp.Match("^https?:\\/\\/", []byte(c.tenantUrl))
 	if err != nil {
 		errs.Errors = append(errs.Errors, ErrorMessage{
 			Message: errParseError,
@@ -81,7 +89,6 @@ func NewClient(opts ...func(*Client)) (*Client, error) {
 	if errs.HasErrors() {
 		return nil, errs
 	}
-
 	return &c, nil
 }
 
@@ -97,12 +104,18 @@ func SetApiKey(s string) func(*Client) {
 	}
 }
 
+// If no custom User Agent is set, the client will use the generic "Tines/GoSdk" User Agent by default.
+// As best practice and to avoid having your application's traffic lumped in with misbehaving clients,
+// it is *strongly* recommended to set a custom User Agent.
 func SetUserAgent(s string) func(*Client) {
 	return func(c *Client) {
-		c.userAgent = s
+		c.userAgent = utils.SetUserAgent(s)
 	}
 }
 
+// You may optionally pass a configured zap logger when creating a new client. The Go SDK only emits logs at a
+// DEBUG level for use when developing your own application. In production, you should handle errors emitted
+// by the SDK using your application's existing error-handling logic.
 func SetLogger(l *zap.Logger) func(*Client) {
 	return func(c *Client) {
 		c.logger = l
@@ -186,8 +199,7 @@ func (c *Client) doRequest(ctx context.Context, method, path string, params map[
 	req.Header.Set("content-type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Set("User-Agent", utils.SetUserAgent(c.userAgent))
-	req.Header.Set("x-tines-client-version", fmt.Sprintf("tines-go-sdk-%s", utils.SetClientVersion()))
-	req.Header.Set("x-user-token", c.apiKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
 
 	resp, respErr := c.httpClient.Do(req)
 	if respErr != nil {

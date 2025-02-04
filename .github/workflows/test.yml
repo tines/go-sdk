@@ -12,13 +12,29 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            - uses: actions/setup-go@v5
-              with:
-                go-version-file: "go.mod"
-                cache: true
-            - run: go mod download
-            - run: go build -v .
             - uses: golangci/golangci-lint-action@v6
               with:
                 version: latest
-    
+    go-test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                go-version: '1.23.2'
+                go-version-file: "go.mod"
+                cache: true
+            - run: go mod download
+            - run: go test -v -coverprofile coverage.out ./...
+            - env:
+                COVERAGE_THRESHOLD_PCT: 40
+              run: |
+                    coverage=$(go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+')
+                    if (( $(echo "$coverage > $COVERAGE_THRESHOLD_PCT" | bc -l) )); then
+                        echo "Test coverage exceeds minimum threshold"
+                    else
+                        echo "Test coverage is below minimum threshold"
+                        go tool cover -func=coverage.out
+                        exit 1
+                    fi
