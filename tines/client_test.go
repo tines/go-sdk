@@ -40,9 +40,8 @@ func createTestServer(assert *assert.Assertions, respStatus int, respBody []byte
 		// Validate that the client is sending expected request values
 		assert.Equal("application/json", r.Header.Get("Content-Type"), "client should send JSON data")
 		assert.Equal("application/json", r.Header.Get("Accept"))
-		assert.Equal("foo", r.Header.Get("x-user-token"))
-		assert.Equal("TinesGoSdk/development", r.Header.Get("User-Agent"))
-		assert.Equal("tines-go-sdk-development", r.Header.Get("x-tines-client-version"))
+		assert.Equal("Bearer foo", r.Header.Get("Authorization"))
+		assert.Equal("Tines/GoSdk", r.Header.Get("User-Agent"))
 
 		w.WriteHeader(respStatus)
 

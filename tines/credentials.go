@@ -3,6 +3,7 @@ package tines
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"iter"
 	"net/http"
 
@@ -31,7 +32,7 @@ type Credential struct {
 	SharedTeams  []string       `json:"shared_team_slugs,omitempty"`
 	Description  string         `json:"description,omitempty"`
 	Metadata     map[string]any `json:"metadata,omitempty"`
-	AllowedHosts map[string]any `json:"allowed_hosts,omitempty"`
+	AllowedHosts []string       `json:"allowed_hosts,omitempty"`
 	TestCred     bool           `json:"test_credential_enabled,omitempty"`
 	IsTest       bool           `json:"is_test,omitempty"`
 	CredentialPayload
@@ -97,15 +98,140 @@ type CredentialMultiReq struct {
 }
 
 func (c *Client) CreateCredential(ctx context.Context, cred *Credential) (*Credential, error) {
-	return &Credential{}, nil
+	resource := "/api/v1/user_credentials"
+	newCred := Credential{}
+
+	req, err := json.Marshal(cred)
+	if err != nil {
+		return &newCred, Error{
+			Type: ErrorTypeRequest,
+			Errors: []ErrorMessage{
+				{
+					Message: errParseError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	body, err := c.doRequest(ctx, http.MethodPost, resource, nil, req)
+	if err != nil {
+		return &newCred, err
+	}
+
+	err = json.Unmarshal(body, &newCred)
+	if err != nil {
+		return &newCred, Error{
+			Type: ErrorTypeServer,
+			Errors: []ErrorMessage{
+				{
+					Message: errUnmarshalError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	return &newCred, nil
+
 }
 
 func (c *Client) GetCredential(ctx context.Context, id int) (*Credential, error) {
-	return &Credential{}, nil
+	resource := fmt.Sprintf("/api/v1/user_credentials/%d", id)
+	cred := Credential{}
+
+	body, err := c.doRequest(ctx, http.MethodGet, resource, nil, nil)
+	if err != nil {
+		return &cred, Error{
+			Type: ErrorTypeRequest,
+			Errors: []ErrorMessage{
+				{
+					Message: errDoRequestError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	err = json.Unmarshal(body, &cred)
+	if err != nil {
+		return &cred, Error{
+			Type: ErrorTypeServer,
+			Errors: []ErrorMessage{
+				{
+					Message: errUnmarshalError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	return &cred, nil
 }
 
-func (c *Client) UpdateCredential(ctx context.Context, cred *Credential) (*Credential, error) {
-	return &Credential{}, nil
+func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential) (*Credential, error) {
+	resource := fmt.Sprintf("/api/v1/user_credentials/%d", id)
+	errs := Error{Type: ErrorTypeRequest}
+	updatedCred := Credential{}
+
+	if cred.Mode == "" {
+		errs.Errors = append(errs.Errors, ErrorMessage{
+			Message: errParseError,
+			Details: "Credential Mode must be set.",
+		})
+	}
+
+	if cred.Id == 0 {
+		errs.Errors = append(errs.Errors, ErrorMessage{
+			Message: errParseError,
+			Details: "You must specify the Credential ID to update.",
+		})
+	}
+
+	if errs.HasErrors() {
+		return nil, errs
+	}
+
+	req, err := json.Marshal(cred)
+	if err != nil {
+		return &updatedCred, Error{
+			Type: ErrorTypeRequest,
+			Errors: []ErrorMessage{
+				{
+					Message: errParseError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	body, err := c.doRequest(ctx, http.MethodPut, resource, nil, req)
+	if err != nil {
+		return &updatedCred, Error{
+			Type: ErrorTypeRequest,
+			Errors: []ErrorMessage{
+				{
+					Message: errDoRequestError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	err = json.Unmarshal(body, cred)
+	if err != nil {
+		return &updatedCred, Error{
+			Type: ErrorTypeServer,
+			Errors: []ErrorMessage{
+				{
+					Message: errUnmarshalError,
+					Details: err.Error(),
+				},
+			},
+		}
+	}
+
+	return &updatedCred, nil
 }
 
 func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Credential, error] {
@@ -160,5 +286,12 @@ func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Cr
 }
 
 func (c *Client) DeleteCredential(ctx context.Context, id int) error {
+	resource := fmt.Sprintf("/api/v1/user_credentials/%d", id)
+
+	_, err := c.doRequest(ctx, http.MethodDelete, resource, nil, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

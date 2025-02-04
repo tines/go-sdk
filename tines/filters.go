@@ -6,15 +6,45 @@ import (
 	"time"
 )
 
+// Enum for filtering a List of Stories.
+type StoryFilter string
+
+const (
+	FilterApiEnabled StoryFilter = "API_ENABLED"
+	FilterChangeCtrl StoryFilter = "CHANGE_CONTROL_ENABLED"
+	FilterDisabled   StoryFilter = "DISABLED"
+	FilterFavorite   StoryFilter = "FAVORITE"
+	FilterHiPriority StoryFilter = "HIGH_PRIORITY"
+	FilterLocked     StoryFilter = "LOCKED"
+	FilterPublished  StoryFilter = "PUBLISHED"
+	FilterStsEnabled StoryFilter = "SEND_TO_STORY_ENABLED"
+)
+
+// Enum for ordering results returned by a List of Stories.
+type StoryOrder string
+
+const (
+	OrderByActionCtAsc        StoryOrder = "ACTION_COUNT_ASC"
+	OrderByActionCtDesc       StoryOrder = "ACTION_COUNT_DESC"
+	OrderByNameAsc            StoryOrder = "NAME"
+	OrderbyNameDesc           StoryOrder = "NAME_DESC"
+	OrderByRecentlyEditedAsc  StoryOrder = "LEAST_RECENTLY_EDITED"
+	OrderByRecentlyEditedDesc StoryOrder = "RECENTLY_EDITED"
+)
+
 type ListFilter struct {
-	TeamID      int    `json:"team_id,omitempty"`
-	ContentType string `json:"content_type,omitempty"`
-	Before      string `json:"before,omitempty"`
-	After       string `json:"after,omitempty"`
-	UserID      int    `json:"user_id,omitempty"`
-	OpName      string `json:"operation_name,omitempty"`
-	PerPage     int    `json:"per_page,omitempty"`
-	Page        int    `json:"page,omitempty"`
+	TeamID      int         `json:"team_id,omitempty"`
+	FolderID    int         `json:"folder_id,omitempty"`
+	ContentType string      `json:"content_type,omitempty"`
+	Before      string      `json:"before,omitempty"`
+	After       string      `json:"after,omitempty"`
+	UserID      int         `json:"user_id,omitempty"`
+	OpName      string      `json:"operation_name,omitempty"`
+	StoryFilter StoryFilter `json:"filter,omitempty"`
+	StoryOrder  StoryOrder  `json:"order,omitempty"`
+	Tags        []string    `json:"tags,omitempty"`
+	PerPage     int         `json:"per_page,omitempty"`
+	Page        int         `json:"page,omitempty"`
 	maxResults  int
 }
 
@@ -22,8 +52,8 @@ type ListFilter struct {
 //
 // Example Usage:
 //
-//	lf := filter.NewListFilter(
-//	  filter.WithTeamId(1),
+//	lf := tines.NewListFilter(
+//	  tines.WithTeamId(1),
 //	)
 func NewListFilter(opts ...func(*ListFilter)) ListFilter {
 	lf := ListFilter{
@@ -69,6 +99,23 @@ func WithContentType(ct string) func(*ListFilter) {
 func WithOperationName(op string) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		lf.OpName = op
+	}
+}
+
+// Limit results returned by the List Stories endpoint to one of the enumerated StoryFilter types (eg API Enabled,
+// Locked, etc.) Currently, the API allows only one filter to be applied at a time.
+func WithStoryFilter(f StoryFilter) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		lf.StoryFilter = f
+	}
+}
+
+// Specify the ordering of the results returned by the List Stories endpoint based on one of the enumerated fields
+// (eg ordering by Story Name, Action Count, or Recently Edited, either ascending or descending.) Currently, the
+// API only allows for specifying result order on one column at a time.
+func WithStoryOrder(o StoryOrder) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		lf.StoryOrder = o
 	}
 }
 

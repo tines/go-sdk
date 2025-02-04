@@ -14,7 +14,7 @@ func TestSetUserAgent(t *testing.T) {
 		expected    string
 		expectedErr error
 	}{
-		{input: "", expected: "TinesGoSdk/development", expectedErr: nil},
+		{input: "", expected: "Tines/GoSdk", expectedErr: nil},
 		{input: "foo", expected: "foo", expectedErr: nil},
 	}
 
