@@ -23,18 +23,32 @@ const (
 )
 
 type Credential struct {
-	Id           int            `json:"id,omitempty"`
-	Name         string         `json:"name,omitempty"`
-	Mode         CredentialType `json:"mode,omitempty"`
-	TeamId       int            `json:"team_id,omitempty"`
-	FolderId     int            `json:"folder_id,omitempty"`
-	ReadAccess   string         `json:"read_access,omitempty"`
-	SharedTeams  []string       `json:"shared_team_slugs,omitempty"`
-	Description  string         `json:"description,omitempty"`
-	Metadata     map[string]any `json:"metadata,omitempty"`
-	AllowedHosts []string       `json:"allowed_hosts,omitempty"`
-	TestCred     bool           `json:"test_credential_enabled,omitempty"`
-	IsTest       bool           `json:"is_test,omitempty"`
+	// Required field to retrieve, update, or delete an existing Credential. Not valid when
+	// creating a new Credential.
+	Id int `json:"id,omitempty"`
+	// Required field to create a new Credential.
+	Name string `json:"name,omitempty"`
+	// Required field to create a new Credential.
+	Mode CredentialType `json:"mode,omitempty"`
+	// Required field to create a new Credential.
+	TeamId          int            `json:"team_id,omitempty"`
+	FolderId        int            `json:"folder_id,omitempty"`
+	ReadAccess      string         `json:"read_access,omitempty"`
+	SharedTeams     []string       `json:"shared_team_slugs,omitempty"`
+	Slug            string         `json:"slug,omitempty"`
+	CreatedAt       string         `json:"created_at,omitempty"`
+	UpdatedAt       string         `json:"updated_at,omitempty"`
+	Description     string         `json:"description,omitempty"`
+	AwsAssumeRole   string         `json:"aws_assumed_role_external_id,omitempty"`
+	Metadata        map[string]any `json:"metadata,omitempty"`
+	AllowedHosts    []string       `json:"allowed_hosts,omitempty"`
+	Restrictions    string         `json:"restriction_type,omitempty"`
+	TestCredEnabled bool           `json:"test_credential_enabled,omitempty"`
+	// IsTest must be set to true when updating a test Credential value.
+	// Credential.TestCred must also be set to true.
+	IsTest   bool `json:"is_test,omitempty"`
+	LiveCred int  `json:"live_credential_id,omitempty"`
+	// Construct a tines.CredentialPayload{} to create a new Credential.
 	CredentialPayload
 }
 
@@ -55,10 +69,10 @@ type CredentialPayload struct {
 	AwsAssumedRole string `json:"aws_assumed_role_arn,omitempty"`
 
 	// CredentialTypeHttp
-	HttpReqOpts     string `json:"http_request_options,omitempty"`
-	HttpReqTokenLoc string `json:"http_request_location_of_token,omitempty"`
-	HttpReqSecret   string `json:"http_request_secret,omitempty"`
-	HttpReqTtl      int    `json:"http_request_ttl,omitempty"`
+	HttpReqOpts     map[string]any `json:"http_request_options,omitempty"`
+	HttpReqTokenLoc string         `json:"http_request_location_of_token,omitempty"`
+	HttpReqSecret   string         `json:"http_request_secret,omitempty"`
+	HttpReqTtl      int            `json:"http_request_ttl,omitempty"`
 
 	// CredentialTypeJwt
 	JwtAlgo       string         `json:"jwt_algorithm,omitempty"`
@@ -169,7 +183,7 @@ func (c *Client) GetCredential(ctx context.Context, id int) (*Credential, error)
 	return &cred, nil
 }
 
-func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential) (*Credential, error) {
+func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential) (Credential, error) {
 	resource := fmt.Sprintf("/api/v1/user_credentials/%d", id)
 	errs := Error{Type: ErrorTypeRequest}
 	updatedCred := Credential{}
@@ -189,12 +203,12 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 	}
 
 	if errs.HasErrors() {
-		return nil, errs
+		return updatedCred, errs
 	}
 
 	req, err := json.Marshal(cred)
 	if err != nil {
-		return &updatedCred, Error{
+		return updatedCred, Error{
 			Type: ErrorTypeRequest,
 			Errors: []ErrorMessage{
 				{
@@ -207,7 +221,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 
 	body, err := c.doRequest(ctx, http.MethodPut, resource, nil, req)
 	if err != nil {
-		return &updatedCred, Error{
+		return updatedCred, Error{
 			Type: ErrorTypeRequest,
 			Errors: []ErrorMessage{
 				{
@@ -218,9 +232,9 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 		}
 	}
 
-	err = json.Unmarshal(body, cred)
+	err = json.Unmarshal(body, &updatedCred)
 	if err != nil {
-		return &updatedCred, Error{
+		return updatedCred, Error{
 			Type: ErrorTypeServer,
 			Errors: []ErrorMessage{
 				{
@@ -231,7 +245,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 		}
 	}
 
-	return &updatedCred, nil
+	return updatedCred, nil
 }
 
 func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Credential, error] {

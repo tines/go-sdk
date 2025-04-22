@@ -47,7 +47,7 @@ const testAuditLogsResp = `
 func TestAuditLogsList(t *testing.T) {
 	assert := assert.New(t)
 
-	ts := createTestServer(assert, http.StatusOK, []byte(testAuditLogsResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testAuditLogsResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
