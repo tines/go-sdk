@@ -16,7 +16,7 @@ linters:
   settings:
     errcheck:
       exclude-functions:
-        - (io.Closer).Close # Safe to exclude for closing HTTP response bodies in memory
+        - (io.Closer).Close
   exclusions:
     generated: lax
     paths:
