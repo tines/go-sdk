@@ -183,7 +183,7 @@ func (c *Client) GetCredential(ctx context.Context, id int) (*Credential, error)
 	return &cred, nil
 }
 
-func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential) (Credential, error) {
+func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential) (*Credential, error) {
 	resource := fmt.Sprintf("/api/v1/user_credentials/%d", id)
 	errs := Error{Type: ErrorTypeRequest}
 	updatedCred := Credential{}
@@ -203,12 +203,12 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 	}
 
 	if errs.HasErrors() {
-		return updatedCred, errs
+		return &updatedCred, errs
 	}
 
 	req, err := json.Marshal(cred)
 	if err != nil {
-		return updatedCred, Error{
+		return &updatedCred, Error{
 			Type: ErrorTypeRequest,
 			Errors: []ErrorMessage{
 				{
@@ -221,7 +221,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 
 	body, err := c.doRequest(ctx, http.MethodPut, resource, nil, req)
 	if err != nil {
-		return updatedCred, Error{
+		return &updatedCred, Error{
 			Type: ErrorTypeRequest,
 			Errors: []ErrorMessage{
 				{
@@ -234,7 +234,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 
 	err = json.Unmarshal(body, &updatedCred)
 	if err != nil {
-		return updatedCred, Error{
+		return &updatedCred, Error{
 			Type: ErrorTypeServer,
 			Errors: []ErrorMessage{
 				{
@@ -245,7 +245,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 		}
 	}
 
-	return updatedCred, nil
+	return &updatedCred, nil
 }
 
 func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Credential, error] {

@@ -299,7 +299,7 @@ func TestUpdateCredential(t *testing.T) {
 	cred, err := cli.UpdateCredential(ctx, update.Id, &update)
 
 	assert.Nil(err, "the credential should be retrieved without errors")
-	assert.IsType(tines.Credential{}, cred, "the response should be the expected type")
+	assert.IsType(&tines.Credential{}, cred, "the response should be the expected type")
 
 	created, err := time.Parse(time.RFC3339, cred.CreatedAt)
 	assert.Nil(err, "the credential creation timestamp should be valid")
