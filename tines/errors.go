@@ -38,6 +38,7 @@ type ErrorMessage struct {
 	Details string `json:"details,omitempty"`
 }
 
+// Implements the standard Go error interface for compatibility with default errors.
 func (e Error) Error() string {
 	var errString string
 	errMessages := []string{}
@@ -54,6 +55,8 @@ func (e Error) Error() string {
 	return errString
 }
 
+// Check to see if an instantiated error object has more than zero `ErrorMessages` that have been
+// appended to it.
 func (e Error) HasErrors() bool {
 	return e.Errors != nil
 }

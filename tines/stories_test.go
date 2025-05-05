@@ -260,7 +260,7 @@ const (
 
 func TestCreateStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusCreated, []byte(testStoryResp))
+	ts := createTestServer(assert, http.StatusCreated, nil, []byte(testStoryResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -286,7 +286,7 @@ func TestCreateStory(t *testing.T) {
 
 func TestGetStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusOK, []byte(testStoryResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testStoryResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -310,7 +310,7 @@ func TestGetStory(t *testing.T) {
 
 func TestUpdateStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusOK, []byte(testUpdateStoryResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testUpdateStoryResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -336,7 +336,7 @@ func TestUpdateStory(t *testing.T) {
 
 func TestListStories(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusOK, []byte(testListStoriesResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testListStoriesResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -352,7 +352,7 @@ func TestListStories(t *testing.T) {
 	ctx := context.Background()
 
 	lf := tines.NewListFilter(
-		tines.WithStoryFilter(tines.FilterPublished),
+		tines.WithResultFilter(tines.FilterPublished),
 		tines.WithStoryOrder(tines.OrderByNameAsc),
 	)
 
@@ -366,7 +366,7 @@ func TestListStories(t *testing.T) {
 
 func TestDeleteStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusNoContent, nil)
+	ts := createTestServer(assert, http.StatusNoContent, nil, nil)
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -388,7 +388,7 @@ func TestDeleteStory(t *testing.T) {
 
 func TestBatchDeleteStories(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusNoContent, nil)
+	ts := createTestServer(assert, http.StatusNoContent, nil, nil)
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -410,7 +410,7 @@ func TestBatchDeleteStories(t *testing.T) {
 
 func TestExportStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusOK, []byte(testExportStoryResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testExportStoryResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -433,7 +433,7 @@ func TestExportStory(t *testing.T) {
 
 func TestImportStory(t *testing.T) {
 	assert := assert.New(t)
-	ts := createTestServer(assert, http.StatusOK, []byte(testImportStoryResp))
+	ts := createTestServer(assert, http.StatusOK, nil, []byte(testImportStoryResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(

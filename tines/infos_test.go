@@ -35,7 +35,7 @@ const (
 func TestGetInfo(t *testing.T) {
 	assert := assert.New(t)
 
-	ts := createTestServer(assert, 200, []byte(testGetInfoResp))
+	ts := createTestServer(assert, 200, nil, []byte(testGetInfoResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
@@ -60,7 +60,7 @@ func TestGetInfo(t *testing.T) {
 func TestGetWorkerStats(t *testing.T) {
 	assert := assert.New(t)
 
-	ts := createTestServer(assert, 200, []byte(testGetWorkerStatsResp))
+	ts := createTestServer(assert, 200, nil, []byte(testGetWorkerStatsResp))
 	defer ts.Close()
 
 	cli, err := tines.NewClient(
