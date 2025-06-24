@@ -1,6 +1,6 @@
 module github.com/tines/go-sdk
 
-go 1.23.2
+go 1.23.10
 
 require (
 	github.com/stretchr/testify v1.10.0
