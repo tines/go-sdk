@@ -60,6 +60,42 @@ const (
     "test_resource_enabled": false,
     "referencing_action_ids": []
 }`
+	// Santiized API response as of 2025-06-23.
+	testUpdateResourceResp = `
+{
+    "id": 1,
+    "name": "Test",
+    "value": "value",
+    "team_id": 1,
+    "folder_id": null,
+    "user_id": 1,
+    "read_access": "TEAM",
+    "shared_team_slugs": [],
+    "slug": "test",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "description": "",
+    "test_resource_enabled": false,
+    "referencing_action_ids": []
+}`
+	// Santiized API response as of 2025-06-23.
+	testUpdateEmptyResourceResp = `
+{
+    "id": 1,
+    "name": "Test",
+    "value": "",
+    "team_id": 1,
+    "folder_id": null,
+    "user_id": 1,
+    "read_access": "TEAM",
+    "shared_team_slugs": [],
+    "slug": "test",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
+    "description": "",
+    "test_resource_enabled": false,
+    "referencing_action_ids": []
+}`
 	// Sanitized API response as of 2025-06-23.
 	testListResourcesResp = `
 {
@@ -163,6 +199,44 @@ func TestGetResource(t *testing.T) {
 	assert.Nil(err, "the resource should be created without errors")
 	assert.IsType(&tines.Resource{}, res, "the response should be the expected type")
 	assert.Equal(1, res.Id, "the retrieved credential should match the request")
+}
+
+func TestUpdateResource(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		name    string
+		req     string
+		resp    string
+		payload tines.Resource
+	}{
+		{"WithValue", "", testUpdateResourceResp, tines.Resource{Name: "Test", Value: "value", TeamId: 1}},
+		{"EmptyValue", "", testUpdateEmptyResourceResp, tines.Resource{Name: "Test 2", Value: "", TeamId: 1}},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ts := createTestServer(assert, http.StatusOK, nil, []byte(test.resp))
+			defer ts.Close()
+
+			cli, err := tines.NewClient(
+				tines.SetApiKey("foo"),
+				tines.SetTenantUrl(ts.URL),
+			)
+
+			assert.Nil(err, "the Tines CLI client should instantiate successfully")
+			if err != nil {
+				return
+			}
+
+			ctx := context.Background()
+
+			res, err := cli.GetResource(ctx, 1)
+			assert.Nil(err, "the resource should be retrieved without errors")
+			assert.IsType(&tines.Resource{}, res, "the response should be the expected type")
+			assert.Equal(test.payload.Value, res.Value, "the retrieved credential should match the request")
+
+		})
+	}
 }
 
 func TestListResources(t *testing.T) {
