@@ -23,7 +23,11 @@ type Resource struct {
 	Description    string   `json:"description,omitempty"`
 	TestResEnabled bool     `json:"test_resource_enabled,omitempty"`
 	TestResource   any      `json:"test_resource,omitempty"`
+	IsTest         bool     `json:"is_test,omitempty"`
 	LiveResourceId int      `json:"live_resource_id,omitempty"`
+	CreatedAt      string   `json:"created_at,omitempty"`
+	UpdatedAt      string   `json:"updated_at,omitempty"`
+	RefActions     []int    `json:"referencing_action_ids,omitempty"`
 }
 
 type ResourceElement struct {
