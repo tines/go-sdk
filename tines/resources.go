@@ -156,7 +156,7 @@ func (c *Client) UpdateResource(ctx context.Context, id int, r *Resource) (*Reso
 		}
 	}
 
-	err = json.Unmarshal(body, r)
+	err = json.Unmarshal(body, &updatedRes)
 	if err != nil {
 		return &updatedRes, Error{
 			Type: ErrorTypeServer,
