@@ -209,8 +209,8 @@ func TestUpdateResource(t *testing.T) {
 		resp    string
 		payload tines.Resource
 	}{
-		{"WithValue", "", testUpdateResourceResp, tines.Resource{Name: "Test", Value: "value", TeamId: 1}},
-		{"EmptyValue", "", testUpdateEmptyResourceResp, tines.Resource{Name: "Test 2", Value: "", TeamId: 1}},
+		{"WithValue", "", testUpdateResourceResp, tines.Resource{Id: 1, Name: "Test", Value: "value", TeamId: 1}},
+		{"EmptyValue", "", testUpdateEmptyResourceResp, tines.Resource{Id: 1, Name: "Test 2", Value: "", TeamId: 1}},
 	}
 
 	for _, test := range tests {
@@ -230,7 +230,7 @@ func TestUpdateResource(t *testing.T) {
 
 			ctx := context.Background()
 
-			res, err := cli.GetResource(ctx, 1)
+			res, err := cli.UpdateResource(ctx, 1, &test.payload)
 			assert.Nil(err, "the resource should be retrieved without errors")
 			assert.IsType(&tines.Resource{}, res, "the response should be the expected type")
 			assert.Equal(test.payload.Value, res.Value, "the retrieved credential should match the request")
