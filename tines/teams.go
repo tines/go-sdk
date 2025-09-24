@@ -10,26 +10,26 @@ import (
 	"github.com/tines/go-sdk/internal/paginate"
 )
 
-// Team represents a Tines team
+// Team represents a Tines team.
 type Team struct {
 	ID     int         `json:"id,omitempty"`
 	Name   string      `json:"name,omitempty"`
 	Groups []TeamGroup `json:"groups,omitempty"`
 }
 
-// TeamGroup represents a team group (sub-team within a team)
+// TeamGroup represents a team group (sub-team within a team).
 type TeamGroup struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// TeamList represents paginated team results
+// TeamList represents paginated team results.
 type TeamList struct {
 	Teams []Team        `json:"teams,omitempty"`
 	Meta  paginate.Meta `json:"meta,omitempty"`
 }
 
-// TeamMember represents a team member - used for both responses and invite requests
+// TeamMember represents a team member - used for both responses and invite requests.
 type TeamMember struct {
 	ID    int    `json:"id,omitempty"`
 	Email string `json:"email,omitempty"`
@@ -37,13 +37,13 @@ type TeamMember struct {
 	Role  string `json:"role,omitempty"`
 }
 
-// TeamMemberList represents paginated team member results
+// TeamMemberList represents paginated team member results.
 type TeamMemberList struct {
 	Members []TeamMember  `json:"members,omitempty"`
 	Meta    paginate.Meta `json:"meta,omitempty"`
 }
 
-// CreateTeam creates a new team with the specified name
+// CreateTeam creates a new team with the specified name.
 func (c *Client) CreateTeam(ctx context.Context, team *Team) (*Team, error) {
 	newTeam := Team{}
 
@@ -65,7 +65,7 @@ func (c *Client) CreateTeam(ctx context.Context, team *Team) (*Team, error) {
 	return &newTeam, nil
 }
 
-// GetTeam retrieves details for a specific team by ID
+// GetTeam retrieves details for a specific team by ID.
 func (c *Client) GetTeam(ctx context.Context, id int) (*Team, error) {
 	resource := fmt.Sprintf("/api/v1/teams/%d", id)
 	team := Team{}
@@ -83,7 +83,7 @@ func (c *Client) GetTeam(ctx context.Context, id int) (*Team, error) {
 	return &team, nil
 }
 
-// UpdateTeam updates an existing team's information
+// UpdateTeam updates an existing team's information.
 func (c *Client) UpdateTeam(ctx context.Context, id int, team *Team) (*Team, error) {
 	updatedTeam := Team{}
 	resource := fmt.Sprintf("/api/v1/teams/%d", id)
@@ -174,7 +174,7 @@ func (c *Client) ListTeams(ctx context.Context, f ListFilter) iter.Seq2[Team, er
 	}
 }
 
-// DeleteTeam deletes a team by ID
+// DeleteTeam deletes a team by ID.
 func (c *Client) DeleteTeam(ctx context.Context, id int) error {
 	resource := fmt.Sprintf("/api/v1/teams/%d", id)
 
@@ -251,7 +251,7 @@ func (c *Client) ListTeamMembers(ctx context.Context, teamID int, f ListFilter) 
 	}
 }
 
-// InviteTeamMember invites a new member to join a team by email
+// InviteTeamMember invites a new member to join a team by email.
 func (c *Client) InviteTeamMember(ctx context.Context, teamID int, member *TeamMember) error {
 	resource := fmt.Sprintf("/api/v1/teams/%d/invite", teamID)
 
@@ -264,7 +264,7 @@ func (c *Client) InviteTeamMember(ctx context.Context, teamID int, member *TeamM
 	return err
 }
 
-// RemoveTeamMember removes a member from a team
+// RemoveTeamMember removes a member from a team.
 func (c *Client) RemoveTeamMember(ctx context.Context, teamID, memberID int) error {
 	resource := fmt.Sprintf("/api/v1/teams/%d/members/%d", teamID, memberID)
 
@@ -272,7 +272,7 @@ func (c *Client) RemoveTeamMember(ctx context.Context, teamID, memberID int) err
 	return err
 }
 
-// ResendTeamMemberInvitation resends an invitation to a team member
+// ResendTeamMemberInvitation resends an invitation to a team member.
 func (c *Client) ResendTeamMemberInvitation(ctx context.Context, teamID, memberID int) error {
 	resource := fmt.Sprintf("/api/v1/teams/%d/members/%d/resend", teamID, memberID)
 

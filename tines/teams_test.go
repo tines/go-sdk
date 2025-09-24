@@ -21,7 +21,7 @@ func createTestTeamServer(handler http.HandlerFunc) (*httptest.Server, *tines.Cl
 }
 
 const (
-	// Sanitized API response value for team creation/retrieval
+	// Sanitized API response value for team creation/retrieval.
 	testTeamResp = `{
 		"id": 1,
 		"name": "Security team",
@@ -33,7 +33,7 @@ const (
 		]
 	}`
 
-	// Sanitized API response value for team listing
+	// Sanitized API response value for team listing.
 	testTeamListResp = `{
 		"teams": [
 			{
@@ -56,7 +56,7 @@ const (
 		}
 	}`
 
-	// Sanitized API response value for team member listing
+	// Sanitized API response value for team member listing.
 	testTeamMemberListResp = `{
 		"members": [
 			{
@@ -97,7 +97,7 @@ func TestCreateTeam(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(testTeamResp))
+		_, _ = w.Write([]byte(testTeamResp))
 	})
 	defer server.Close()
 
@@ -121,7 +121,7 @@ func TestGetTeam(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(testTeamResp))
+		_, _ = w.Write([]byte(testTeamResp))
 	})
 	defer server.Close()
 
@@ -152,7 +152,7 @@ func TestUpdateTeam(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(updatedResp))
+		_, _ = w.Write([]byte(updatedResp))
 	})
 	defer server.Close()
 
@@ -173,7 +173,7 @@ func TestListTeams(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(testTeamListResp))
+		_, _ = w.Write([]byte(testTeamListResp))
 	})
 	defer server.Close()
 
@@ -200,7 +200,7 @@ func TestListTeamsWithIncludePersonalTeams(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(testTeamListResp))
+		_, _ = w.Write([]byte(testTeamListResp))
 	})
 	defer server.Close()
 
@@ -235,7 +235,7 @@ func TestListTeamMembers(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(testTeamMemberListResp))
+		_, _ = w.Write([]byte(testTeamMemberListResp))
 	})
 	defer server.Close()
 
@@ -303,12 +303,12 @@ func TestResendTeamMemberInvitation(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// Error handling tests
+// Error handling tests.
 func TestCreateTeamError(t *testing.T) {
 	server, client := createTestTeamServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"errors": [{"message": "Name is required"}]}`))
+		_, _ = w.Write([]byte(`{"errors": [{"message": "Name is required"}]}`))
 	})
 	defer server.Close()
 
@@ -322,7 +322,7 @@ func TestCreateTeamError(t *testing.T) {
 func TestGetTeamNotFound(t *testing.T) {
 	server, client := createTestTeamServer(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"errors": [{"message": "Team not found"}]}`))
+		_, _ = w.Write([]byte(`{"errors": [{"message": "Team not found"}]}`))
 	})
 	defer server.Close()
 
