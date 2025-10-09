@@ -44,19 +44,20 @@ const (
 )
 
 type ListFilter struct {
-	TeamID       int          `json:"team_id,omitempty"`
-	FolderID     int          `json:"folder_id,omitempty"`
-	ContentType  string       `json:"content_type,omitempty"`
-	Before       string       `json:"before,omitempty"`
-	After        string       `json:"after,omitempty"`
-	UserID       int          `json:"user_id,omitempty"`
-	OpName       string       `json:"operation_name,omitempty"`
-	ResultFilter ResultFilter `json:"filter,omitempty"`
-	StoryOrder   StoryOrder   `json:"order,omitempty"`
-	Tags         []string     `json:"tags,omitempty"`
-	PerPage      int          `json:"per_page,omitempty"`
-	Page         int          `json:"page,omitempty"`
-	maxResults   int
+	TeamID               int          `json:"team_id,omitempty"`
+	FolderID             int          `json:"folder_id,omitempty"`
+	ContentType          string       `json:"content_type,omitempty"`
+	Before               string       `json:"before,omitempty"`
+	After                string       `json:"after,omitempty"`
+	UserID               int          `json:"user_id,omitempty"`
+	OpName               string       `json:"operation_name,omitempty"`
+	ResultFilter         ResultFilter `json:"filter,omitempty"`
+	StoryOrder           StoryOrder   `json:"order,omitempty"`
+	Tags                 []string     `json:"tags,omitempty"`
+	PerPage              int          `json:"per_page,omitempty"`
+	Page                 int          `json:"page,omitempty"`
+	IncludePersonalTeams bool         `json:"include_personal_teams,omitempty"`
+	maxResults           int
 }
 
 // Filter results returned by a List endpoint (eg List Credentials, List Stories, etc).
@@ -185,6 +186,14 @@ func WithResultsPerPage(i int) func(*ListFilter) {
 func WithResultsPageCursor(i int) func(*ListFilter) {
 	return func(lf *ListFilter) {
 		lf.Page = i
+	}
+}
+
+// Include personal teams in the results when listing teams.
+// This filter is only valid for the List Teams endpoint.
+func WithIncludePersonalTeams(include bool) func(*ListFilter) {
+	return func(lf *ListFilter) {
+		lf.IncludePersonalTeams = include
 	}
 }
 
