@@ -5,7 +5,7 @@ go 1.23.10
 require (
 	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 )
 
 require (
