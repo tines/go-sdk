@@ -174,7 +174,7 @@ func (c *Client) UpdateResource(ctx context.Context, id int, r *Resource) (*Reso
 }
 
 func (c *Client) ListResources(ctx context.Context, f ListFilter) iter.Seq2[Resource, error] {
-	var resourceList, resultList ResourceList
+	var resultList ResourceList
 	resource := "/api/v1/global_resources"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -199,7 +199,9 @@ func (c *Client) ListResources(ctx context.Context, f ListFilter) iter.Seq2[Reso
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.GlobalResources {
-				resourceList.GlobalResources = append(resourceList.GlobalResources, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -216,11 +218,6 @@ func (c *Client) ListResources(ctx context.Context, f ListFilter) iter.Seq2[Reso
 			}
 		}
 
-		for _, v := range resourceList.GlobalResources {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 

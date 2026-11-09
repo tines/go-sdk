@@ -31,7 +31,7 @@ type AuditLogList struct {
 }
 
 func (c *Client) ListAuditLogs(ctx context.Context, f ListFilter) iter.Seq2[AuditLog, error] {
-	var auditlogList, resultList AuditLogList
+	var resultList AuditLogList
 	resource := "/api/v1/audit_logs"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -57,7 +57,9 @@ func (c *Client) ListAuditLogs(ctx context.Context, f ListFilter) iter.Seq2[Audi
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.AuditLogs {
-				auditlogList.AuditLogs = append(auditlogList.AuditLogs, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -74,10 +76,5 @@ func (c *Client) ListAuditLogs(ctx context.Context, f ListFilter) iter.Seq2[Audi
 			}
 		}
 
-		for _, v := range auditlogList.AuditLogs {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
