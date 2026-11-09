@@ -87,15 +87,7 @@ func (c *Client) GetResource(ctx context.Context, id int) (*Resource, error) {
 
 	body, err := c.doRequest(ctx, http.MethodGet, resource, nil, nil)
 	if err != nil {
-		return &res, Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return &res, err
 	}
 
 	err = json.Unmarshal(body, &res)
@@ -145,15 +137,7 @@ func (c *Client) UpdateResource(ctx context.Context, id int, r *Resource) (*Reso
 
 	body, err := c.doRequest(ctx, http.MethodPut, resource, nil, req)
 	if err != nil {
-		return &updatedRes, Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return &updatedRes, err
 	}
 
 	err = json.Unmarshal(body, &updatedRes)
@@ -258,15 +242,7 @@ func (c *Client) AppendResourceElement(ctx context.Context, id int, e *ResourceE
 
 	body, err := c.doRequest(ctx, http.MethodPost, resource, nil, req)
 	if err != nil {
-		return "", Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return "", err
 	}
 
 	return string(body), nil
@@ -305,15 +281,7 @@ func (c *Client) RemoveResourceElement(ctx context.Context, id int, e *ResourceE
 
 	body, err := c.doRequest(ctx, http.MethodPost, resource, nil, req)
 	if err != nil {
-		return "", Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return "", err
 	}
 
 	return string(body), nil
@@ -350,15 +318,7 @@ func (c *Client) ReplaceResourceElement(ctx context.Context, id int, e *Resource
 
 	body, err := c.doRequest(ctx, http.MethodPost, resource, nil, req)
 	if err != nil {
-		return &updatedRes, Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return &updatedRes, err
 	}
 
 	err = json.Unmarshal(body, &updatedRes)

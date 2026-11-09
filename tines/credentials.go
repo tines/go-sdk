@@ -156,15 +156,7 @@ func (c *Client) GetCredential(ctx context.Context, id int) (*Credential, error)
 
 	body, err := c.doRequest(ctx, http.MethodGet, resource, nil, nil)
 	if err != nil {
-		return &cred, Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return &cred, err
 	}
 
 	err = json.Unmarshal(body, &cred)
@@ -221,15 +213,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 
 	body, err := c.doRequest(ctx, http.MethodPut, resource, nil, req)
 	if err != nil {
-		return &updatedCred, Error{
-			Type: ErrorTypeRequest,
-			Errors: []ErrorMessage{
-				{
-					Message: errDoRequestError,
-					Details: err.Error(),
-				},
-			},
-		}
+		return &updatedCred, err
 	}
 
 	err = json.Unmarshal(body, &updatedCred)
