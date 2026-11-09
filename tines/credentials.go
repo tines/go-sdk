@@ -249,7 +249,7 @@ func (c *Client) UpdateCredential(ctx context.Context, id int, cred *Credential)
 }
 
 func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Credential, error] {
-	var credentialList, resultList CredentialList
+	var resultList CredentialList
 	resource := "/api/v1/user_credentials"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -274,7 +274,9 @@ func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Cr
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.UserCredentials {
-				credentialList.UserCredentials = append(credentialList.UserCredentials, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -291,11 +293,6 @@ func (c *Client) ListCredentials(ctx context.Context, f ListFilter) iter.Seq2[Cr
 			}
 		}
 
-		for _, v := range credentialList.UserCredentials {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 

@@ -147,7 +147,7 @@ func (c *Client) UpdateFolder(ctx context.Context, id int, name string) (*Folder
 //		fmt.Println(f.Name)
 //	}
 func (c *Client) ListFolders(ctx context.Context, f ListFilter) iter.Seq2[Folder, error] {
-	var folderList, resultList FolderList
+	var resultList FolderList
 	resource := "/api/v1/folders"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -175,7 +175,9 @@ func (c *Client) ListFolders(ctx context.Context, f ListFilter) iter.Seq2[Folder
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.Folders {
-				folderList.Folders = append(folderList.Folders, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -192,11 +194,6 @@ func (c *Client) ListFolders(ctx context.Context, f ListFilter) iter.Seq2[Folder
 			}
 		}
 
-		for _, v := range folderList.Folders {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 

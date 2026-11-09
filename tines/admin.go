@@ -155,7 +155,7 @@ func (c *Client) UpdateUser(ctx context.Context, id int, u *User) (*User, error)
 //		fmt.Println(u.Email)
 //	}
 func (c *Client) ListUsers(ctx context.Context, f ListFilter) iter.Seq2[User, error] {
-	var userList, resultList UserList
+	var resultList UserList
 	resource := "/api/v1/admin/users"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -180,7 +180,9 @@ func (c *Client) ListUsers(ctx context.Context, f ListFilter) iter.Seq2[User, er
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.Users {
-				userList.Users = append(userList.Users, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -196,11 +198,6 @@ func (c *Client) ListUsers(ctx context.Context, f ListFilter) iter.Seq2[User, er
 			}
 		}
 
-		for _, v := range userList.Users {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 

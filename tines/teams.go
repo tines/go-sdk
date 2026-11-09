@@ -121,7 +121,7 @@ func (c *Client) UpdateTeam(ctx context.Context, id int, team *Team) (*Team, err
 //		fmt.Println(t.Name)
 //	}
 func (c *Client) ListTeams(ctx context.Context, f ListFilter) iter.Seq2[Team, error] {
-	var teamList, resultList TeamList
+	var resultList TeamList
 	resource := "/api/v1/teams"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -149,7 +149,9 @@ func (c *Client) ListTeams(ctx context.Context, f ListFilter) iter.Seq2[Team, er
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.Teams {
-				teamList.Teams = append(teamList.Teams, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -166,11 +168,6 @@ func (c *Client) ListTeams(ctx context.Context, f ListFilter) iter.Seq2[Team, er
 			}
 		}
 
-		for _, v := range teamList.Teams {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 
@@ -198,7 +195,7 @@ func (c *Client) DeleteTeam(ctx context.Context, id int) error {
 //		fmt.Println(m.Email)
 //	}
 func (c *Client) ListTeamMembers(ctx context.Context, teamID int, f ListFilter) iter.Seq2[TeamMember, error] {
-	var memberList, resultList TeamMemberList
+	var resultList TeamMemberList
 	resource := fmt.Sprintf("/api/v1/teams/%d/members", teamID)
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -226,7 +223,9 @@ func (c *Client) ListTeamMembers(ctx context.Context, teamID int, f ListFilter) 
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.Members {
-				memberList.Members = append(memberList.Members, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -243,11 +242,6 @@ func (c *Client) ListTeamMembers(ctx context.Context, teamID int, f ListFilter) 
 			}
 		}
 
-		for _, v := range memberList.Members {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 

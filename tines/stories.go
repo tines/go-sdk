@@ -138,7 +138,7 @@ func (c *Client) UpdateStory(ctx context.Context, id int, values *Story) (*Story
 //		fmt.Println(s.Name)
 //	}
 func (c *Client) ListStories(ctx context.Context, f ListFilter) iter.Seq2[Story, error] {
-	var storyList, resultList StoryList
+	var resultList StoryList
 	resource := "/api/v1/stories"
 	params := f.ToParamMap()
 	page := paginate.Cursor{
@@ -166,7 +166,9 @@ func (c *Client) ListStories(ctx context.Context, f ListFilter) iter.Seq2[Story,
 			params = page.GetNextPageParams()
 
 			for _, v := range resultList.Stories {
-				storyList.Stories = append(storyList.Stories, v)
+				if !yield(v, nil) {
+					return
+				}
 				page.IncrementCounter()
 				if page.MaxResultsReturned() {
 					c.logger.Debug("hit the limit of results to return")
@@ -183,11 +185,6 @@ func (c *Client) ListStories(ctx context.Context, f ListFilter) iter.Seq2[Story,
 			}
 		}
 
-		for _, v := range storyList.Stories {
-			if !yield(v, nil) {
-				return
-			}
-		}
 	}
 }
 
